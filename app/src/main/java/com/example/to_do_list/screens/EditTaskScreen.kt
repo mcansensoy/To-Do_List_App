@@ -64,7 +64,7 @@ fun EditTaskScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedButton(
-                    modifier = Modifier.padding(bottom = 24.dp),
+                    modifier = Modifier.padding(bottom = 40.dp),
                     onClick = {
                     onBack()
                 }) {
