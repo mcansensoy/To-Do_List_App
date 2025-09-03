@@ -164,6 +164,11 @@ fun ListScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 Spacer(modifier = Modifier.height(16.dp))
 
+                if (tasks.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Henüz hiç görev yok.\nYeni görev eklemek için + butonuna basın.")
+                    }
+                }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(top = 0.dp, bottom = 96.dp) // FAB için boşluk
