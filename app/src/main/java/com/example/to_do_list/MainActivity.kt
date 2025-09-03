@@ -37,7 +37,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.to_do_list.ui.EditTaskScreen
+import com.example.to_do_list.screens.EditTaskScreen
 import com.example.to_do_list.ui.theme.To_Do_ListTheme
 import kotlinx.coroutines.launch
 
@@ -62,7 +62,6 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val context = LocalContext.current
 
-                    // RunningService kontrolü için tasks burada izleniyor
                     val tasks by vm.tasks.collectAsState()
 
                     LaunchedEffect(tasks) {
@@ -84,7 +83,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    // NavController ve NavHost
                     val navController = rememberNavController()
 
                     NavHost(navController = navController, startDestination = "list") {
@@ -100,7 +98,6 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument("taskId") { type = NavType.IntType })
                         ) { backStackEntry ->
                             val id = backStackEntry.arguments?.getInt("taskId") ?: return@composable
-                            // EditTaskScreen daha önce verdiğimiz dosya olmalı:
                             EditTaskScreen(
                                 taskId = id,
                                 vm = vm,
@@ -130,11 +127,11 @@ fun ListScreen(
     val tasks by vm.tasks.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
-    val snackbarHostState = remember { SnackbarHostState() } // snackbar için state
+    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }, // Scaffold'a host'u bağladık
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAdd = !showAdd },
@@ -171,7 +168,7 @@ fun ListScreen(
                 }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(top = 0.dp, bottom = 96.dp) // FAB için boşluk
+                    contentPadding = PaddingValues(top = 0.dp, bottom = 96.dp)
                 ) {
                     items(items = tasks, key = { it.id }) { currentTask ->
                         Row(
@@ -230,7 +227,7 @@ fun ListScreen(
                 visible = showAdd,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 92.dp) // FAB yüksekliğine göre ayarla
+                    .padding(end = 16.dp, bottom = 92.dp)
             ) {
                 Card(
                     shape = RoundedCornerShape(12.dp),
@@ -253,7 +250,6 @@ fun ListScreen(
                                 onDone = {
                                     if (task.isNotBlank()) {
                                         vm.addTask()
-                                        //vm.updateTaskText("") // temizle
                                         showAdd = false
                                         focusManager.clearFocus()
                                     }
@@ -274,7 +270,6 @@ fun ListScreen(
                             onClick = {
                                 if (task.isNotBlank()) {
                                     vm.addTask()
-                                    //vm.updateTaskText("") // temizle
                                     showAdd = false
                                     focusManager.clearFocus()
                                 }

@@ -1,9 +1,8 @@
-package com.example.to_do_list.ui
+package com.example.to_do_list.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,8 +13,6 @@ import com.example.to_do_list.ListViewModel
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.text.input.ImeAction
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,7 +28,6 @@ fun EditTaskScreen(
     val focusManager = LocalFocusManager.current
 
     if (task == null) {
-        // Eğer görev bulunmazsa basit bir bilgi göster ve geri dönme imkanı ver
         Scaffold { inner ->
             Box(modifier = Modifier.fillMaxSize().padding(inner), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -45,31 +41,31 @@ fun EditTaskScreen(
     }
 
     var title by rememberSaveable(taskId) { mutableStateOf(task.title) }
-    val snackbarHostState = remember { SnackbarHostState() } // snackbar için state
+    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }, // host eklendi
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Görevi Düzenle") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Geri")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")
                     }
                 }
             )
         },
         bottomBar = {
-            // Sol: Vazgeç, Sağ: Kaydet
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedButton(onClick = {
-                    // Değişiklikleri kaydetmeden geri dön
+                OutlinedButton(
+                    modifier = Modifier.padding(bottom = 24.dp),
+                    onClick = {
                     onBack()
                 }) {
                     Text("Vazgeç")
@@ -77,8 +73,9 @@ fun EditTaskScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Button(onClick = {
-                    // kaydet
+                Button(
+                    modifier = Modifier.padding(bottom = 24.dp),
+                    onClick = {
                     val newTitle = title.trim()
                     if (newTitle.isNotEmpty()) {
                         vm.updateTaskTitle(taskId, newTitle)
@@ -107,13 +104,6 @@ fun EditTaskScreen(
                 onValueChange = { title = it },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                /*keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = {
-                    // hızlı kaydetme opsiyonu (isteğe bağlı)
-                    val newTitle = title.trim()
-                    if (newTitle.isNotEmpty()) vm.updateTaskTitle(taskId, newTitle)
-                    focusManager.clearFocus()
-                }),*/
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline,
@@ -126,7 +116,7 @@ fun EditTaskScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text("Task ID: $taskId", style = MaterialTheme.typography.bodySmall)
-            // istersen burada ek alanlar (isDone toggle, notlar vs.) ekleyebilirsin
+            // istersem ileride buraya ek alanlar (isDone toggle, notlar vs.) ekleyebilirim
         }
     }
 }
