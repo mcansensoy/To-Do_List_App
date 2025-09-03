@@ -39,6 +39,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.to_do_list.ui.EditTaskScreen
 import com.example.to_do_list.ui.theme.To_Do_ListTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -67,10 +68,13 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(tasks) {
                         val incomplete = vm.getFirstIncompleteTask()
                         if (incomplete != null) {
-                            Intent(context, RunningService::class.java).also {
-                                it.action = RunningService.Actions.START.name
-                                it.putExtra("TASK_TEXT", incomplete.title)
-                                ContextCompat.startForegroundService(context, it)
+                            if(vm.lastNotifiedId != incomplete.id){
+                                vm.changeLastNotified(incomplete.id)
+                                Intent(context, RunningService::class.java).also {
+                                    it.action = RunningService.Actions.START.name
+                                    it.putExtra("TASK_TEXT", incomplete.title)
+                                    ContextCompat.startForegroundService(context, it)
+                                }
                             }
                         } else {
                             Intent(context, RunningService::class.java).also {
@@ -126,8 +130,11 @@ fun ListScreen(
     val tasks by vm.tasks.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val snackbarHostState = remember { SnackbarHostState() } // snackbar için state
+    val scope = rememberCoroutineScope()
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }, // Scaffold'a host'u bağladık
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAdd = !showAdd },
@@ -189,7 +196,14 @@ fun ListScreen(
                             }
 
                             IconButton(
-                                onClick = { vm.removeTask(currentTask) }
+                                onClick = {
+                                    vm.removeTask(currentTask)
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "Görev kaldırıldı"
+                                        )
+                                    }
+                                }
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,

@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,8 +45,11 @@ fun EditTaskScreen(
     }
 
     var title by rememberSaveable(taskId) { mutableStateOf(task.title) }
+    val snackbarHostState = remember { SnackbarHostState() } // snackbar için state
+    val scope = rememberCoroutineScope()
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }, // host eklendi
         topBar = {
             TopAppBar(
                 title = { Text("Görevi Düzenle") },
@@ -78,6 +82,11 @@ fun EditTaskScreen(
                     val newTitle = title.trim()
                     if (newTitle.isNotEmpty()) {
                         vm.updateTaskTitle(taskId, newTitle)
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                "Değişiklikler kaydedildi"
+                            )
+                        }
                     }
                     focusManager.clearFocus()
                     onBack()
@@ -98,13 +107,13 @@ fun EditTaskScreen(
                 onValueChange = { title = it },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                /*keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = {
                     // hızlı kaydetme opsiyonu (isteğe bağlı)
                     val newTitle = title.trim()
                     if (newTitle.isNotEmpty()) vm.updateTaskTitle(taskId, newTitle)
                     focusManager.clearFocus()
-                }),
+                }),*/
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline,

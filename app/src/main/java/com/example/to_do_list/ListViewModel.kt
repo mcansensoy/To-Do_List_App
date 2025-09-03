@@ -15,6 +15,7 @@ data class Task(
 class ListViewModel : ViewModel() {
 
     private var nextId = 0
+    var lastNotifiedId = -1
 
     // Girilen yeni task text'i
     private val _task = MutableStateFlow("")
@@ -67,5 +68,12 @@ class ListViewModel : ViewModel() {
             if (t.id == id) t.copy(title = newTitle) else t
         }
         _tasks.value = updated
+        if (lastNotifiedId == id) {
+            lastNotifiedId = -1
+        }
+    }
+
+    fun changeLastNotified(id: Int){
+        lastNotifiedId = id
     }
 }
